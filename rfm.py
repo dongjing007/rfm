@@ -21,19 +21,16 @@ frequency_value = sales_data['ORDERDATE'].groupby(sales_data.index).count() #计
 monetary_value = sales_data['AMOUNTINFO'].groupby(sales_data.index).sum() #计算订单总金额
 
 # 方差、标准差
-print('Data DESC')
-print(monetary_value)
-print('-' * 30)
+# print('Data DESC')
+# print(monetary_value)
+# print('-' * 30)
 
 # 分别计算R,F,M得分
 deadline_date = pd.datetime(2019, 5,1) #指定一个时间节点，用来计算其他时间和改时间的距离
 r_interval = (deadline_date - recency_value).dt.days #计算r间隔
-# r_score = pd.cut(r_interval, 5, labels=['5','4','3','2','1']) # 计算r得分 五分位倒序
-r_score = pd.cut(r_interval, [0, 230, 1500], labels=['高', '低']) # 计算r得分 五分位倒序
-# f_score = pd.cut(frequency_value, 5, labels=[1,2,3,4,5]) # 计算f得分
-f_score = pd.cut(frequency_value, [0, 9, 500], labels=['低', '高']) # 计算f得分
-# m_score = pd.cut(monetary_value, 5, labels=[1,2,3,4,5]) # 计算m得分
-m_score = pd.cut(monetary_value,[0, 12000, 1000000],labels=['低', '高']) # 计算m得分
+r_score = pd.cut(r_interval, 5, labels=['5','4','3','2','1']) # 计算r得分 五分位倒序
+f_score = pd.cut(frequency_value, 5, labels=[1,2,3,4,5]) # 计算f得分
+m_score = pd.cut(monetary_value, 5, labels=[1,2,3,4,5]) # 计算m得分
 
 # R,F,M数据合并
 rfm_list = [r_score, f_score, m_score] # 将R,F,M三个维度组成列表
@@ -51,18 +48,5 @@ rfm_pd_tmp['f_score'] = rfm_pd_tmp['f_score'].astype('str')
 rfm_pd_tmp['m_score'] = rfm_pd_tmp['m_score'].astype('str')
 rfm_pd['rfm_comb'] = rfm_pd_tmp['r_score'].str.cat(rfm_pd_tmp['f_score']).str.cat(rfm_pd_tmp['m_score'])
 
-# 结果数据处理
-rfm_pd.rfm_comb[rfm_pd.rfm_comb =='低低低'] = '潜在客户'
-rfm_pd.rfm_comb[rfm_pd.rfm_comb =='高低低'] = '一般发展客户'
-rfm_pd.rfm_comb[rfm_pd.rfm_comb =='低高低'] = '一般保持客户'
-rfm_pd.rfm_comb[rfm_pd.rfm_comb =='高高低'] = '一般价值客户'
-rfm_pd.rfm_comb[rfm_pd.rfm_comb =='低低高'] = '重点挽留客户'
-rfm_pd.rfm_comb[rfm_pd.rfm_comb =='高低高'] = '重点发展客户'
-rfm_pd.rfm_comb[rfm_pd.rfm_comb =='低高高'] = '重点保持客户'
-rfm_pd.rfm_comb[rfm_pd.rfm_comb =='高高高'] = '高价值客户'
-
-# rfm_pd['rfm_label'] = '高级用户'
-print(rfm_pd)
-
-# # 导出数据
+# 导出数据
 rfm_pd.to_csv('sales_rfm_score.csv')
